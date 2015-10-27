@@ -10,9 +10,11 @@ using namespace std;
 
 int main()
 {
+    Rshell rshell = Rshell();
     string input = "";
     while(input != "exit")
     {
+        rshell.myFork();
         cout << "$ ";
         getline(cin, input);
     }		    
