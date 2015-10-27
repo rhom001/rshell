@@ -12,8 +12,8 @@ int main()
 {
     Rshell rshell = Rshell();
     //  System call functions test
-    rshell.myFork();    
-    rshell.myWait();
+    //  rshell.myFork();    
+    //  rshell.myWait();
     rshell.myExec();
 
     string input = "";
