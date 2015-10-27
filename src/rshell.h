@@ -13,6 +13,5 @@ class Rshell
         void myFork();
         void myWait();
         void myExec();
-        
 };
 #endif  //  RSHELL_H
