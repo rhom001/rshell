@@ -11,10 +11,10 @@ using namespace std;
 int main()
 {
     string input = "";
-    while (input != "exit")
+    while(input != "exit")
     {
         cout << "$";
-        cin >> input;
+        getline(cin, input);
     }		    
     return 0;
 }
