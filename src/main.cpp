@@ -1,7 +1,7 @@
 /** 
  * This is the main file that will be used to run the rshell.
 **/
-#include "Rshell.h"
+#include "rshell.h"
 
 #include <iostream>
 #include <string>
@@ -13,7 +13,7 @@ int main()
     string input = "";
     while(input != "exit")
     {
-        cout << "$";
+        cout << "$ ";
         getline(cin, input);
     }		    
     return 0;
