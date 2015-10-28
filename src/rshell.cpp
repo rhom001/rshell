@@ -18,6 +18,7 @@ Rshell::Rshell()
 {}
 
 //  Rshell functions
+/*
 //  System call test functions
 //  void myFork() - tests the use of fork()
 void Rshell::myFork()
@@ -36,6 +37,7 @@ void Rshell::myFork()
     {
         cout << "Parent: I'm the parent: " << pid << endl;
     }
+    return;
 }
 
 //  void myWait() - tests the use of wait()
@@ -69,12 +71,13 @@ void Rshell::myWait()
             cout << WEXITSTATUS(status) << endl;
         }
     }
+    return;
 }
 
 //  void myExec() - tests the execvp() which executes a command
 void Rshell::myExec()
 {
-    char* args[2] = {"ls", NULL};
+    char * args[2] = {"ls", NULL};
     pid_t c_pid, pid;
     int status;
 
@@ -100,8 +103,9 @@ void Rshell::myExec()
         }
         cout << "Parent: finished" << endl;
     }
+    return;
 }
-
+*/
 //  These functions takes command input from the user and parses them
 //  void removeSpace(string &input) - takes out extra whitespace from input
 void Rshell::removeSpace(string& input)
@@ -110,4 +114,9 @@ void Rshell::removeSpace(string& input)
     {
         input.erase(input.begin());
     }
+    return;
 }
+
+//  void convertCommands(string input, vector<string>& inputs) - parses the
+//      input string into individual strings/commands/flags
+

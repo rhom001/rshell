@@ -3,13 +3,18 @@
 #Variables
 COMPILE = g++
 FLAGS = -Wall -Werror -ansi -pedantic
-OBJS = src/rshell.o
+OBJS = $(RSHELL)
+RSHELL = src/rshell.cpp
 
 #Targets
-all: src/main.cpp $(OBJS)
-	$(COMPILE) $(FLAGS) -o bin/rshell src/main.cpp $(OBJS)
-rshell.o: src/rshell.cpp src/rshell.h
-	$(COMPILE) $(FLAGS) -c src/rshell.cpp
+all: src/main.cpp $(RSHELL) 
+	mkdir bin
+	#$(COMPILE) $(FLAGS) -c src/rshell.cpp
+	$(COMPILE) $(FLAGS) -o bin/rshell src/main.cpp $(RSHELL)
+rshell: src/rshell.cpp src/rshell.h
+	mkdir bin
+	#$(COMPILE) $(FLAGS) -c src/rshell.cpp
+	$(COMPILE) $(FLAGS) -o bin/rshell src/main.cpp $(RSHELL)
 
 clean:
-	rm ~rf *~o *.o a.out
+	rm bin/rshell; rmdir bin

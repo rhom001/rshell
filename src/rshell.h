@@ -8,11 +8,11 @@ class Rshell
 {
     public:
         //  Class constructor
-        Rshell();
+        Rshell();/*
         //  System call tests
         void myFork();
         void myWait();
-        void myExec();
+        void myExec();*/
         //  Parses command inputs
         void removeSpace(string&);
 };
