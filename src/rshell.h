@@ -13,5 +13,7 @@ class Rshell
         void myFork();
         void myWait();
         void myExec();
+        //  Parses command inputs
+        void removeSpace(string&);
 };
 #endif  //  RSHELL_H

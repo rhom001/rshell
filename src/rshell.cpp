@@ -101,3 +101,13 @@ void Rshell::myExec()
         cout << "Parent: finished" << endl;
     }
 }
+
+//  These functions takes command input from the user and parses them
+//  void removeSpace(string &input) - takes out extra whitespace from input
+void Rshell::removeSpace(string& input)
+{
+    while((input[0] == ' ') || (input[0] == '\t'))
+    {
+        input.erase(input.begin());
+    }
+}
