@@ -119,4 +119,29 @@ void Rshell::removeSpace(string& input)
 
 //  void convertCommands(string input, vector<string>& inputs) - parses the
 //      input string into individual strings/commands/flags
-
+void Rshell::convertCommands(string& input, vector<string>& inputs)
+{
+    //  Parses out individual commands from multi-line commands
+    while(input.find(";") != string::npos)
+    {
+        unsigned loc = input.find(";");
+        string temp = input.substr(0, loc); //  Gets command string
+        input = input.substr(loc + 1);      //  Takes out the temp from input
+        removeSpace(input);                 //  Cuts out preceding whitespace
+        inputs.push_back(temp);             //  Pushes the command into inputs
+    }
+    //  Gets an individual command that isn't exit
+    if(!input.empty() && (input != "exit"))
+    {
+        removeSpace(input);
+        string temp = input;
+        input.clear();
+        inputs.push_back(temp);
+    }
+    //  Gets the exit command
+    if(input == "exit")
+    {
+        inputs.push_back(input);
+    }
+    return;
+}   

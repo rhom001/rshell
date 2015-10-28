@@ -2,6 +2,8 @@
 #define RSHELL_H
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 class Rshell
@@ -15,5 +17,6 @@ class Rshell
         void myExec();*/
         //  Parses command inputs
         void removeSpace(string&);
+        void convertCommands(string&, vector<string>&);
 };
 #endif  //  RSHELL_H
