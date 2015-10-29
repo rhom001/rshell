@@ -34,9 +34,27 @@ void Rshell::removeSpace(string& input)
 void Rshell::convertCommands(string& input, vector<string>& inputs)
 {
     //  Parses out individual commands from multi-line commands
-    while(input.find(";") != string::npos)
+    while((input.find(";") != string::npos) || (input.find(",") != string::npos))
     {
-        unsigned loc = input.find(";");
+        unsigned loc;
+        //  Finds whether comma or semi-colon comes first
+        if((input.find(";") != string::npos) && (input.find(",") != string::npos))
+        {
+            loc = input.find(";");
+            if(input.find(",") < loc)
+            {
+                loc = input.find(",");
+            }
+        }
+        else if((input.find(";") != string::npos) && (input.find(",") == string::npos))
+        {
+            loc = input.find(";");
+        }
+        else
+        {
+            loc = input.find(",");
+        }
+         
         string temp = input.substr(0, loc); //  Gets command string
         input = input.substr(loc + 1);      //  Takes out the temp from input
         removeSpace(input);                 //  Cuts out preceding whitespace
