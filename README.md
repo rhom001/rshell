@@ -19,6 +19,7 @@
 
 <p>We also have the following functions in order for our shell to work:</p>
 
+<h4>Input Parser</h4>
 <p>After receiving user input from the main.cpp, we need to parse out the commands to make sure that we get the command, its flags, and any arguments it has. We will also need to check for any connectors (',', '&&', and '||').</p>
 <ul>
     <li><em>void removeSpace(string input)</em> - removes extraneous whitespace from <em>input</em>.</li>
