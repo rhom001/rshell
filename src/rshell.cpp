@@ -40,16 +40,50 @@ void Rshell::convertCommands(string& input, vector<string>& inputs)
         loc = input.find("#");
         input = input.substr(0, loc);
     }  
-
-    //  Parses out individual commands from multi-line commands
-    while(input.find(";") != string::npos)
+    
+    //  Stops the input at the first exit
+    if(input.find("exit") != string::npos)
     {
-        loc = input.find(";");
-        string temp = input.substr(0, loc); //  Gets command string
-        input = input.substr(loc + 1);      //  Takes out the temp from input
-        removeSpace(input);                 //  Cuts out preceding whitespace
-        inputs.push_back(temp);             //  Pushes the command into inputs
+        loc = input.find("exit");
+        input = input.substr(0, loc + 4);   //  Cuts input at the end of exit
     }
+    
+    string cons[3] = { ";", "&&", "||" };
+    //  Parses out individual commands from connectors
+    while((input.find(";") != string::npos) || 
+        (input.find("&&") != string::npos) ||
+        (input.find("||") != string::npos))
+    {
+        string temp, con;
+        loc = input.size();
+
+        //  Finds the earliest connector
+        for(unsigned i = 0; i < 3; ++i)
+        {
+            if((input.find(cons[i]) != string::npos) && 
+                (input.find(cons[i]) < loc))
+            {
+                loc = input.find(cons[i]);
+                temp = input.substr(0, loc);
+                con = cons[i];   //  Saves the connector
+            }
+        }
+        
+        //  Puts the cmd into the vector of inputs
+        inputs.push_back(temp);
+        //  If there is a ";", then treat as newline
+        if(con == ";")
+        {
+            input = input.substr(loc + 1);  //  Takes out the cmd from input
+        }
+        else    //  if "&&" or "||", then add in connectors
+        {
+            input = input.substr(loc + 2);
+            inputs.push_back(con);
+        }   
+        removeSpace(input);             //  Takes out any whitespace
+    }
+
 
     //  Gets an individual command that isn't exit
     if(!input.empty() && (input != "exit"))
