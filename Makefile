@@ -15,4 +15,4 @@ rshell: src/rshell.cpp src/rshell.h
 	$(COMPILE) $(FLAGS) -o bin/rshell src/main.cpp $(RSHELL)
 
 clean:
-	rm bin/rshell; rmdir bin; rm src/*.o
+	rm bin/rshell; rmdir bin
