@@ -29,7 +29,7 @@ int main(int arc, char* argv[])
         //  Shows all of the inputs
         for(unsigned i = 0; i < inputs.size(); ++i)
         {
-            cout << "Command" << i + 1 << inputs.at(i) << endl;
+            cout << "Command " << i + 1 << ": " << inputs.at(i) << endl;
         }
         inputs.clear(); //  Clears the commands in the vector
     } 
