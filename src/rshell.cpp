@@ -33,33 +33,24 @@ void Rshell::removeSpace(string& input)
 //      input string into individual strings/commands/flags
 void Rshell::convertCommands(string& input, vector<string>& inputs)
 {
-    //  Parses out individual commands from multi-line commands
-    while((input.find(";") != string::npos) || (input.find(",") != string::npos))
+    unsigned loc;
+    //  Takes out any commented out commands
+    if(input.find("#") != string::npos)
     {
-        unsigned loc;
-        //  Finds whether comma or semi-colon comes first
-        if((input.find(";") != string::npos) && (input.find(",") != string::npos))
-        {
-            loc = input.find(";");
-            if(input.find(",") < loc)
-            {
-                loc = input.find(",");
-            }
-        }
-        else if((input.find(";") != string::npos) && (input.find(",") == string::npos))
-        {
-            loc = input.find(";");
-        }
-        else
-        {
-            loc = input.find(",");
-        }
-         
+        loc = input.find("#");
+        input = input.substr(0, loc);
+    }  
+
+    //  Parses out individual commands from multi-line commands
+    while(input.find(";") != string::npos)
+    {
+        loc = input.find(";");
         string temp = input.substr(0, loc); //  Gets command string
         input = input.substr(loc + 1);      //  Takes out the temp from input
         removeSpace(input);                 //  Cuts out preceding whitespace
         inputs.push_back(temp);             //  Pushes the command into inputs
     }
+
     //  Gets an individual command that isn't exit
     if(!input.empty() && (input != "exit"))
     {
@@ -68,6 +59,7 @@ void Rshell::convertCommands(string& input, vector<string>& inputs)
         input.clear();
         inputs.push_back(temp);
     }
+
     //  Gets the exit command
     if(input == "exit")
     {
