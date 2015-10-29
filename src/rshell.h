@@ -10,11 +10,7 @@ class Rshell
 {
     public:
         //  Class constructor
-        Rshell();/*
-        //  System call tests
-        void myFork();
-        void myWait();
-        void myExec();*/
+        Rshell();
         //  Parses command inputs
         void removeSpace(string&);
         void convertCommands(string&, vector<string>&);

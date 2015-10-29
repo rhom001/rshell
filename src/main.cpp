@@ -14,11 +14,6 @@ using namespace std;
 int main(int arc, char* argv[])
 {
     Rshell rshell = Rshell();
-    //  System call functions test
-    //  rshell.myFork();    
-    //  rshell.myWait();
-    //  rshell.myExec();
-    
     // Initial variables for taking in commands
     string input = "";
     vector<string> inputs;
@@ -31,7 +26,7 @@ int main(int arc, char* argv[])
 
         rshell.removeSpace(input);  //  Removes whitespace from input string
         rshell.convertCommands(input, inputs);
-        //  inputs.clear();
+        inputs.clear();
     } 
     return 0;
 }
