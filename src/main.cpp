@@ -18,9 +18,10 @@ int main()
     string input = "";
     //  vector<string> inputs;
     char *argv[64]; 
+    bool exit = false;
 
     //  Gets the command(s) from user input until exit
-    while(input != "exit")
+    while((input != "exit") && (exit == false))
     {
         char line[100][256];
         cout << "$ ";
