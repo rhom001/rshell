@@ -11,27 +11,21 @@
 
 using namespace std;
 
-int main(int arc, char* argv[])
+int main()
 {
     Rshell rshell = Rshell();
     // Initial variables for taking in commands
     string input = "";
-    vector<string> inputs;
+    //  vector<string> inputs;
+    char line[100][256];
+    char *argv[64]; 
 
     //  Gets the command(s) from user input until exit
     while(input != "exit")
     {
         cout << "$ ";
         getline(cin, input);
-
-        rshell.removeSpace(input);  //  Removes whitespace from input string
-        rshell.convertCommands(input, inputs);  //  Gets all commands
-        //  Shows all of the inputs
-        for(unsigned i = 0; i < inputs.size(); ++i)
-        {
-            cout << "Command " << i + 1 << ": " << inputs.at(i) << endl;
-        }
-        inputs.clear(); //  Clears the commands in the vector
+        rshell.parseCommand(input, line, argv);
     } 
     return 0;
 }
