@@ -32,38 +32,24 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
     //  Parses string into the array (takes out whitespace)
     for(unsigned i = 0; i < input.size(); ++i)
     {
-        //  char con;
-        if(input.at(i) == ' ')
-        {
-            cout << "Space" << endl;
-        }
-        if(input.at(i) == '\t')
-        {
-            cout << "Tab" << endl;
-        }
-        if(input.at(i) == '\n')
-        {
-            cout << "Newline" << endl;
-        }
-        /*
-        if(!quote && (input.at(i) == '#'))  //  Aborts early from comments
-        {
-            break;
-        }
-        else if(!quote && ((input.at(i) != char(32)) || 
-            (input.at(i) != '\t') || 
-            (input.at(i) != '\n')))     //  If the pos in string !=  whitespace
-        {*/
         if(!quote)
         {
-            if(input.at(i) == '#')
+            if(input.at(i) == '#')  //  Finishes with a comment
             {
                 break;
             }
             if((input.at(i) == ' ') || (input.at(i) == '\t') || 
-                (input.at(i) == '\n'))
+                (input.at(i) == '\n'))  //  Replaces whitespace with ' ' if dne
             {
-                continue;
+                if(col > 0 )
+                {
+                    if(line[row][col-1] != ' ')
+                    {
+                        line[row][col] = ' ';
+                        ++col;
+                    }
+                }
+                //  continue;
             }
             else if(input.at(i) == ';')     //  Treat ';' as a newline
             {
@@ -109,8 +95,8 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
     {
         for(unsigned j = 0; line[i][j] != '\0'; ++j)
         {
-            //  cout << line[i][j];
-            cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
+            cout << line[i][j];
+            //  cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
         }
         cout << endl;
     }
