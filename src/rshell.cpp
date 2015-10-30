@@ -41,7 +41,10 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
             if((input.at(i) == ' ') || (input.at(i) == '\t') || 
                 (input.at(i) == '\n'))  //  Replaces whitespace with ' ' if dne
             {
-                if(col > 0 )
+                if((col > 0) && 
+                    !((input.at(i + 1) == '&') || 
+                    (input.at(i + 1) == '|') ||
+                    (input.at(i + 1) == ';')))  //  Makes sure !connector
                 {
                     if(line[row][col-1] != ' ')
                     {
@@ -86,14 +89,13 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
 
     //  Once all cmd retrieved->end array with last row having '\0'
     row++;
-    //  line[row][0] = '\0';
 
     //  Prints out 2d array
     for(unsigned i = 0; line[i][0] != '\0'; ++i)
     {
         for(unsigned j = 0; line[i][j] != '\0'; ++j)
         {
-            //  cout << line[i][j];
+            // cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
         }
         cout << line[i] << endl;
         //  cout << endl;
