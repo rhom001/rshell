@@ -17,12 +17,12 @@ int main()
     // Initial variables for taking in commands
     string input = "";
     //  vector<string> inputs;
-    char line[100][256];
     char *argv[64]; 
 
     //  Gets the command(s) from user input until exit
     while(input != "exit")
     {
+        char line[100][256];
         cout << "$ ";
         getline(cin, input);
         rshell.parseCommand(input, line, argv);

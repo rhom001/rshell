@@ -27,20 +27,45 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
     unsigned row = 0;
     unsigned col = 0;
     bool quote = false;     //  Has a flag if the argument is in quotations
+    clearArray(line);       //  Cleans array
 
     //  Parses string into the array (takes out whitespace)
     for(unsigned i = 0; i < input.size(); ++i)
     {
         //  char con;
-        if(input.at(i) == '#')  //  Aborts early from comments
+        if(input.at(i) == ' ')
+        {
+            cout << "Space" << endl;
+        }
+        if(input.at(i) == '\t')
+        {
+            cout << "Tab" << endl;
+        }
+        if(input.at(i) == '\n')
+        {
+            cout << "Newline" << endl;
+        }
+        /*
+        if(!quote && (input.at(i) == '#'))  //  Aborts early from comments
         {
             break;
         }
-        if(!quote && ((input.at(i) != ' ') || 
+        else if(!quote && ((input.at(i) != char(32)) || 
             (input.at(i) != '\t') || 
             (input.at(i) != '\n')))     //  If the pos in string !=  whitespace
+        {*/
+        if(!quote)
         {
-            if(input.at(i) == ';')      //  Treat ';' as a newline
+            if(input.at(i) == '#')
+            {
+                break;
+            }
+            if((input.at(i) == ' ') || (input.at(i) == '\t') || 
+                (input.at(i) == '\n'))
+            {
+                continue;
+            }
+            else if(input.at(i) == ';')     //  Treat ';' as a newline
             {
                 line[row][col] = '\0';
                 row++;
@@ -64,7 +89,7 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
                 }
             }
         }
-        else
+        else    //  Character is in quotes
         {
             line[row][col] = input.at(i);
             col++;
@@ -78,6 +103,17 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
     //  Once all cmd retrieved->end array with last row having '\0'
     row++;
     line[row][0] = '\0';
+
+    //  Prints out 2d array
+    for(unsigned i = 0; line[i][0] != '\0'; ++i)
+    {
+        for(unsigned j = 0; line[i][j] != '\0'; ++j)
+        {
+            //  cout << line[i][j];
+            cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
+        }
+        cout << endl;
+    }
     return;
 }
 
@@ -89,24 +125,36 @@ void Rshell::parseConnect(string& input, unsigned pos, char line[100][256], char
     {
         line[row][col] = input.at(pos);
         col++;
-        if(line[row][0] == con)     //if prev char is an & -> &&
+        if(line[row][0] == con)         //  if prev char is connector
         {
             line[row][col] = '\0';
             row++;
             col = 0;
         }
     }
-    else if(input.at(pos + 1) == con)
+    else 
     {
-        line[row][col] = '\0';
-        row++;
-        col = 0;
-        line[row][col] = input.at(pos);
-    }
-    else
-    {
+        if(input.at(pos + 1) == con)    //  if next char is connector
+        {
+            line[row][col] = '\0';
+            row++;
+            col = 0;
+        }
         line[row][col] = input.at(pos);
         col++;
     }
     return;
 }
+
+void Rshell::clearArray(char line[100][256])
+{
+    for(unsigned row = 0; row < 100; ++row)
+    {
+        for(unsigned col = 0; col < 256; ++col)
+        {
+            line[row][col] = '\0';
+        }
+    }
+    return;
+}
+
