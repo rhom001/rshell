@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <cstring>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -19,85 +20,93 @@ Rshell::Rshell()
 
 //  Rshell functions
 //  These functions takes command input from the user and parses them
-//  void removeSpace(string &input) - takes out extra whitespace from input
-void Rshell::removeSpace(string& input)
+//  parseCommand(string& input, char line[][], char **argv) - 
+//      parses out whitespace and puts charaters from string into array of char
+void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
 {
-    while((input[0] == ' ') || (input[0] == '\t'))
+    unsigned row = 0;
+    unsigned col = 0;
+    bool quote = false;     //  Has a flag if the argument is in quotations
+
+    //  Parses string into the array (takes out whitespace)
+    for(unsigned i = 0; i < input.size(); ++i)
     {
-        input.erase(input.begin());
-    }
+        //  char con;
+        if(input.at(i) == '#')  //  Aborts early from comments
+        {
+            break;
+        }
+        if(!quote && ((input.at(i) != ' ') || 
+            (input.at(i) != '\t') || 
+            (input.at(i) != '\n')))     //  If the pos in string !=  whitespace
+        {
+            if(input.at(i) == ';')      //  Treat ';' as a newline
+            {
+                line[row][col] = '\0';
+                row++;
+                col = 0;
+            }
+            else if(input.at(i) == '&')     //  Checks for &&
+            {
+                parseConnect(input, i, line, '&', row, col);
+            }
+            else if(input.at(i) == '|')     //  Checks for ||
+            {
+                parseConnect(input, i, line, '|', row, col);
+            }
+            else    //  Any other character
+            {
+                line[row][col] = input.at(i);
+                col++;
+                if(input.at(i) == '"')      //  Checks for "
+                {
+                    quote = true;
+                }
+            }
+        }
+        else
+        {
+            line[row][col] = input.at(i);
+            col++;
+            if(input.at(i) == '"')
+            {
+                quote = false;
+            }
+        }
+    } 
+
+    //  Once all cmd retrieved->end array with last row having '\0'
+    row++;
+    line[row][0] = '\0';
     return;
 }
 
-//  void convertCommands(string input, vector<string>& inputs) - parses the
-//      input string into individual strings/commands/flags
-void Rshell::convertCommands(string& input, vector<string>& inputs)
+//  void parseConnect(string&, unsigned, char [][], char, unsigned&, unsigned&)-
+//      checks if an '&' or '|'  is a connector or not
+void Rshell::parseConnect(string& input, unsigned pos, char line[100][256], char con, unsigned& row, unsigned& col)
 {
-    unsigned loc;
-    //  Takes out any commented out commands
-    if(input.find("#") != string::npos)
+    if(col == 1)
     {
-        loc = input.find("#");
-        input = input.substr(0, loc);
-    }  
-    
-    //  Stops the input at the first exit
-    if(input.find("exit") != string::npos)
-    {
-        loc = input.find("exit");
-        input = input.substr(0, loc + 4);   //  Cuts input at the end of exit
-    }
-    
-    string cons[3] = { ";", "&&", "||" };
-    //  Parses out individual commands from connectors
-    while((input.find(";") != string::npos) || 
-        (input.find("&&") != string::npos) ||
-        (input.find("||") != string::npos))
-    {
-        string temp, con;
-        loc = input.size();
-
-        //  Finds the earliest connector
-        for(unsigned i = 0; i < 3; ++i)
+        line[row][col] = input.at(pos);
+        col++;
+        if(line[row][0] == con)     //if prev char is an & -> &&
         {
-            if((input.find(cons[i]) != string::npos) && 
-                (input.find(cons[i]) < loc))
-            {
-                loc = input.find(cons[i]);
-                temp = input.substr(0, loc);
-                con = cons[i];   //  Saves the connector
-            }
+            line[row][col] = '\0';
+            row++;
+            col = 0;
         }
-        
-        //  Puts the cmd into the vector of inputs
-        inputs.push_back(temp);
-        //  If there is a ";", then treat as newline
-        if(con == ";")
-        {
-            input = input.substr(loc + 1);  //  Takes out the cmd from input
-        }
-        else    //  if "&&" or "||", then add in connectors
-        {
-            input = input.substr(loc + 2);
-            inputs.push_back(con);
-        }   
-        removeSpace(input);             //  Takes out any whitespace
     }
-
-
-    //  Gets an individual command that isn't exit
-    if(!input.empty() && (input != "exit"))
+    else if(input.at(pos + 1) == con)
     {
-        removeSpace(input);
-        string temp = input;
-        input.clear();
-        inputs.push_back(temp);
+        line[row][col] = '\0';
+        row++;
+        col = 0;
+        line[row][col] = input.at(pos);
     }
-
-    //  Gets the exit command
-    if(input == "exit")
+    else
     {
-        inputs.push_back(input);
+        line[row][col] = input.at(pos);
+        col++;
     }
     return;
-}   
+}

@@ -12,7 +12,7 @@ class Rshell
         //  Class constructor
         Rshell();
         //  Parses command inputs
-        void removeSpace(string&);
-        void convertCommands(string&, vector<string>&);
+        void parseCommand(string& input, char line[100][256], char **argv);
+        void parseConnect(string&, unsigned, char line[100][256], char, unsigned&, unsigned&);
 };
 #endif  //  RSHELL_H
