@@ -20,9 +20,9 @@ Rshell::Rshell()
 
 //  Rshell functions
 //  These functions takes command input from the user and parses them
-//  parseCommand(string& input, char line[][], char **argv) - 
+//  parseCommand(string& input, char line[][256], char* argv[][64]) - 
 //      parses out whitespace and puts charaters from string into array of char
-void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64])
+void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
 {
     unsigned row = 0;
     unsigned col = 0;
@@ -87,57 +87,39 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
         }
     } 
 
-    //  Once all cmd retrieved->end array with last row having '\0'
-    row++;
-
-    //  Prints out 2d array
-    for(unsigned i = 0; line[i][0] != '\0'; ++i)
-    {
-        for(unsigned j = 0; line[i][j] != '\0'; ++j)
-        {
-            // cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
-        }
-        //  cout << "Check 1: " << line[i] << endl;
-        //  cout << endl;
-    }
-
     //  Sets up the argv array
     row = 0;
     col = 0;
     quote = false;
     clearArrayP(argv);
 
-    //  Looks through line and replaces any ' ' with '\0'
+
+    //  Looks thrugh lin eand replaces any ' ' with \0'
     for(unsigned i = 0; line[i][0] != '\0'; ++i)
     {
         for(unsigned j = 0; line[i][j] != '\0'; ++j)
         {
-            if((j == 0) && (line[i][0] != ' '))
+            if(j == 0)  //  Gets the command
             {
                 argv[row][col] = &line[i][j];
-                cout << "Check: " << line[i][j] << ": " << argv[row][col]
-                    << endl; 
                 ++col;
             }
-            if(!quote && ((line[i][j] == ' ') || (line[i][j] == '\0')))
+            if(!quote && (line[i][j] == ' '))   //  Replaces space with '\0'
             {
-                line[i][j] = '\0';  //  Changes ' ' to '\0'
-                argv[row][col] = &line[i][j+1];   //  Saves argument position
-                cout << "Check: " << line[i][j+1] << ": " << &line[i][j+1]
-                    << endl; 
+                line[i][j] = '\0';
+                argv[row][col] = &line[i][j + 1];
                 ++col;
             }
-            if(line[i][j] == '"')
+            if(line[i][j] == '"')   //  Triggers quotes
             {
                 quote = !quote;
-            }
+            }    
         }
-        argv[row][col] = '\0';    //  Ends the row
-        ++row;          //  Prepares the next row and sets the col back
+        ++row;      //  Goes to the next row
         col = 0;
     }
-    
-    //  Shows all addresses in argv
+
+   //  Shows all addresses in argv
     for(unsigned i = 0; argv[i][0] != '\0'; ++i)
     {
         cout << "Argument " << i << ": " << argv[row] << endl;   
@@ -153,7 +135,7 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
 
 //  void parseConnect(string&, unsigned, char [][], char, unsigned&, unsigned&)-
 //      checks if an '&' or '|'  is a connector or not
-void Rshell::parseConnect(string& input, unsigned pos, char line[100][256], char con, unsigned& row, unsigned& col)
+void Rshell::parseConnect(string& input, unsigned pos, char line[][256], char con, unsigned& row, unsigned& col)
 {
     if(col == 1)
     {
@@ -179,7 +161,7 @@ void Rshell::parseConnect(string& input, unsigned pos, char line[100][256], char
 }
 
 //  void clearArray(char line[100][256]) - puts '\0' for all spots in the array
-void Rshell::clearArray(char line[100][256])
+void Rshell::clearArray(char line[][256])
 {
     for(unsigned row = 0; line[row][0] != '\0'; ++row)
     {
