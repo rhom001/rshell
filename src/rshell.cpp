@@ -104,6 +104,7 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
     //  Sets up the argv array
     row = 0;
     col = 0;
+    quote = false;
 
     //  Looks through line and replaces any ' ' with '\0'
     for(unsigned i = 0; line[i][0] != '\0'; ++i)
@@ -117,7 +118,7 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
                     << endl; 
                 ++col;
             }
-            if((line[i][j] == ' ') || (line[i][j] == '\0'))
+            if(!quote && ((line[i][j] == ' ') || (line[i][j] == '\0')))
             {
                 line[i][j] = '\0';  //  Changes ' ' to '\0'
                 argv[row][col] = &line[i][j+1];   //  Saves argument position
@@ -125,12 +126,27 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
                     << endl; 
                 ++col;
             }
+            if(line[i][j] == '"')
+            {
+                quote = !quote;
+            }
         }
         argv[row][col] = '\0';    //  Ends the row
-        cout << "Argument: " << argv[row] << endl;
         ++row;          //  Prepares the next row and sets the col back
         col = 0;
     }
+    
+    //  Shows all addresses in argv
+    for(unsigned i = 0; argv[i][0] != '\0'; ++i)
+    {
+        cout << "Argument " << i << ": " << argv[row] << endl;   
+        for(unsigned j = 0; argv[i][j] != '\0'; ++j)
+        {
+            cout << "Argument [" << i << "][" << j << "]: " << argv[i][j]
+                    << endl;
+        }
+        cout << endl;
+    } 
     return;
 }
 
