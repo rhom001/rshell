@@ -22,7 +22,7 @@ Rshell::Rshell()
 //  These functions takes command input from the user and parses them
 //  parseCommand(string& input, char line[][], char **argv) - 
 //      parses out whitespace and puts charaters from string into array of char
-void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
+void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64])
 {
     unsigned row = 0;
     unsigned col = 0;
@@ -97,8 +97,39 @@ void Rshell::parseCommand(string& input, char line[100][256],  char **argv)
         {
             // cout << "Pos[" << i << "][" << j << "]: " << line[i][j] << endl;
         }
-        cout << line[i] << endl;
+        //  cout << "Check 1: " << line[i] << endl;
         //  cout << endl;
+    }
+
+    //  Sets up the argv array
+    row = 0;
+    col = 0;
+
+    //  Looks through line and replaces any ' ' with '\0'
+    for(unsigned i = 0; line[i][0] != '\0'; ++i)
+    {
+        for(unsigned j = 0; line[i][j] != '\0'; ++j)
+        {
+            if((j == 0) && (line[i][0] != ' '))
+            {
+                argv[row][col] = &line[i][j];
+                cout << "Check: " << line[i][j] << ": " << argv[row][col]
+                    << endl; 
+                ++col;
+            }
+            if((line[i][j] == ' ') || (line[i][j] == '\0'))
+            {
+                line[i][j] = '\0';  //  Changes ' ' to '\0'
+                argv[row][col] = &line[i][j+1];   //  Saves argument position
+                cout << "Check: " << line[i][j+1] << ": " << &line[i][j+1]
+                    << endl; 
+                ++col;
+            }
+        }
+        argv[row][col] = '\0';    //  Ends the row
+        cout << "Argument: " << argv[row] << endl;
+        ++row;          //  Prepares the next row and sets the col back
+        col = 0;
     }
     return;
 }
