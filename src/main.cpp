@@ -16,14 +16,13 @@ int main()
     Rshell rshell = Rshell();
     // Initial variables for taking in commands
     string input = "";
-    //  vector<string> inputs;
-    char *argv[64]; 
     bool bye = false;
 
     //  Gets the command(s) from user input until exit
     while((input != "exit") && (!bye))
     {
         char line[100][256];
+        char *argv[64][64];
         cout << "$ ";
         getline(cin, input);
         rshell.parseCommand(input, line, argv);
