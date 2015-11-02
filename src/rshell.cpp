@@ -105,6 +105,7 @@ void Rshell::parseCommand(string& input, char line[100][256], char* argv[64][64]
     row = 0;
     col = 0;
     quote = false;
+    clearArrayP(argv);
 
     //  Looks through line and replaces any ' ' with '\0'
     for(unsigned i = 0; line[i][0] != '\0'; ++i)
@@ -177,9 +178,10 @@ void Rshell::parseConnect(string& input, unsigned pos, char line[100][256], char
     return;
 }
 
+//  void clearArray(char line[100][256]) - puts '\0' for all spots in the array
 void Rshell::clearArray(char line[100][256])
 {
-    for(unsigned row = 0; row < 100; ++row)
+    for(unsigned row = 0; line[row][0] != '\0'; ++row)
     {
         for(unsigned col = 0; col < 256; ++col)
         {
@@ -189,3 +191,16 @@ void Rshell::clearArray(char line[100][256])
     return;
 }
 
+//  void clearArrayP(char* argv[][]) - puts '\0' for all spots in the pointer
+//      array
+void Rshell::clearArrayP(char* argv[][64])
+{
+    for(unsigned row = 0; argv[row][0] != '\0'; ++row)
+    {
+        for(unsigned col = 0; argv[row][col] != '\0'; ++col)
+        {
+            argv[row][col] = '\0';
+        }
+    }
+    return;
+}
