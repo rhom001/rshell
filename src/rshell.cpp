@@ -186,3 +186,11 @@ void Rshell::clearArrayP(char* argv[][64])
     }
     return;
 }
+
+//  void executeCommand(char* argv[][]) - takes the array of commands and 
+//      executes them
+void Rshell::executeCommand(char* argv[][64])
+{
+    
+    return;
+}
