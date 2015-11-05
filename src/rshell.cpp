@@ -118,8 +118,8 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
         ++row;      //  Goes to the next row
         col = 0;
     }
-
-   //  Shows all addresses in argv
+/*
+    //  Shows all addresses in argv
     for(unsigned i = 0; argv[i][0] != '\0'; ++i)
     {
         cout << "Argument " << i << ": " << argv[row] << endl;   
@@ -129,7 +129,8 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
                     << endl;
         }
         cout << endl;
-    } 
+    }
+*/ 
     return;
 }
 
@@ -189,8 +190,70 @@ void Rshell::clearArrayP(char* argv[][64])
 
 //  void executeCommand(char* argv[][]) - takes the array of commands and 
 //      executes them
-void Rshell::executeCommand(char* argv[][64])
+void Rshell::executeCommand(char line[][256], char* argv[][64])
 {
-    
+    pid_t pid;
+    int status;
+    bool conAnd = false;    //  '&&'
+    bool conOr = false;     //  '||'
+    bool success = true;   //  If previous command was successful
+ 
+    for(unsigned i = 0; argv[i][0] != '\0'; ++i)
+    {
+        //  Check for connectors
+        if(line[i][0] == '&')        //  Found an AND connector
+        {
+            conAnd = true;
+            cout << "AND" << endl;
+        }
+        else if(line[i][0] == '|')    //  Found an OR connector
+        {
+            conOr = true;
+            cout << "OR" << endl;
+        }
+        else if((conAnd && !success) || (conOr && success)) //  No connect
+        {
+            conAnd = false;
+            conOr = false;
+        }
+        else    //  Tries to execute the command
+        {
+            if((pid = fork()) < 0)   //  Forks a child process
+            {
+                printf("*** ERROR: forking child process failed\n");
+                exit(1);
+            }
+            else if(pid == 0)
+            {
+                //  Execute the command
+                if(execvp(*argv[i], argv[i]) < 0)
+                {
+                    printf("*** Error: exec failed\n");
+                    success = false;
+                    cout << "Fail!" << endl;
+                    exit(1);
+                }
+                else
+                {
+                    success = true;
+                    cout << "Success!" << endl;
+                }
+            } 
+            else    //  For the parent:
+            {
+                while(wait(&status) != pid) //  Wait for completion
+                {
+                    ;
+                    cout << "Parent" << endl;
+                }
+            }
+            if(conAnd || conOr)
+            {
+                conAnd = false;
+                conOr = false;
+            }
+        }
+    }
     return;
 }
+

@@ -16,6 +16,6 @@ class Rshell
         void parseConnect(string&, unsigned, char line[][256], char, unsigned&, unsigned&);
         void clearArray(char line[][256]);
         void clearArrayP(char* argv[][64]);
-        void executeCommand(char* argv[][64]);
+        void executeCommand(char line[][256], char* argv[][64]);
 };
 #endif  //  RSHELL_H
