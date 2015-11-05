@@ -118,19 +118,6 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
         ++row;      //  Goes to the next row
         col = 0;
     }
-/*
-    //  Shows all addresses in argv
-    for(unsigned i = 0; argv[i][0] != '\0'; ++i)
-    {
-        cout << "Argument " << i << ": " << argv[row] << endl;   
-        for(unsigned j = 0; argv[i][j] != '\0'; ++j)
-        {
-            cout << "Argument [" << i << "][" << j << "]: " << argv[i][j]
-                    << endl;
-        }
-        cout << endl;
-    }
-*/ 
     return;
 }
 
@@ -190,26 +177,35 @@ void Rshell::clearArrayP(char* argv[][64])
 
 //  void executeCommand(char* argv[][]) - takes the array of commands and 
 //      executes them
-void Rshell::executeCommand(char line[][256], char* argv[][64])
+void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 {
     pid_t pid;
     int status;
     bool conAnd = false;    //  '&&'
     bool conOr = false;     //  '||'
-    bool success = true;   //  If previous command was successful
+    bool success = true;    //  If previous command was successful
  
     for(unsigned i = 0; argv[i][0] != '\0'; ++i)
     {
+        //  Check for exit
+        if((line[i][0] == 'e') && (line[i][1] == 'x') && (line[i][2] == 'i') &&
+            (line[i][3] == 't'))
+        {
+            if(!((conAnd && !success) || (conOr && success)))
+            {
+                bye = true;
+                cout << "logout" << endl;
+                exit(0);   
+            }
+        }
         //  Check for connectors
         if(line[i][0] == '&')        //  Found an AND connector
         {
             conAnd = true;
-            cout << "AND" << endl;
         }
         else if(line[i][0] == '|')    //  Found an OR connector
         {
             conOr = true;
-            cout << "OR" << endl;
         }
         else if((conAnd && !success) || (conOr && success)) //  No connect
         {
@@ -218,6 +214,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64])
         }
         else    //  Tries to execute the command
         {
+            success = true;
             if((pid = fork()) < 0)   //  Forks a child process
             {
                 printf("*** ERROR: forking child process failed\n");
@@ -230,13 +227,11 @@ void Rshell::executeCommand(char line[][256], char* argv[][64])
                 {
                     printf("*** Error: exec failed\n");
                     success = false;
-                    cout << "Fail!" << endl;
                     exit(1);
                 }
                 else
                 {
                     success = true;
-                    cout << "Success!" << endl;
                 }
             } 
             else    //  For the parent:

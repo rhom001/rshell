@@ -27,7 +27,7 @@ int main()
         cout << "$ ";
         getline(cin, input);
         rshell.parseCommand(input, line, argv);
-        rshell.executeCommand(line, argv);
+        rshell.executeCommand(line, argv, bye);
     } 
     return 0;
 }
