@@ -231,7 +231,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
         }
         else    //  Tries to execute the command
         {
-            success = true;
+            //  success = true;
             if((pid = fork()) < 0)   //  Forks a child process
             {
                 perror("Forking child process faield");
@@ -244,11 +244,6 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
                 {
                     perror(*argv[i]);
                     success = false;
-                    exit(1);
-                }
-                else
-                {
-                    success = true;
                 }
             } 
             else    //  For the parent:
