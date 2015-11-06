@@ -212,7 +212,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
             {
                 bye = true;
                 cout << "logout" << endl;
-                exit(0);   
+                exit(0);
             }
         }
         //  Check for connectors
