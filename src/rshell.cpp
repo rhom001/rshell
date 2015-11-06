@@ -93,9 +93,24 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
     col = 0;
     quote = false;
     clearArrayP(argv);
-
-
-    //  Looks thrugh lin eand replaces any ' ' with \0'
+/*
+    //  Uses strtok to replace any ' ' with \0
+    char* pch;
+    for(unsigned i = 0; line[i][0] != '\0'; ++i)
+    {
+        col = 0;
+        argv[row][col] = &line[i][0];
+        pch = strtok(line[i], " ");
+        while(pch != NULL)      //  Keeps going until '\0' is found
+        {
+            argv[row][col] = pch;
+            ++col; 
+            pch = strtok(NULL, " ");
+        }
+        ++row;
+    }
+*/
+    //  Looks thrugh line and replaces any ' ' with \0'
     for(unsigned i = 0; line[i][0] != '\0'; ++i)
     {
         for(unsigned j = 0; line[i][j] != '\0'; ++j)
@@ -119,6 +134,7 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
         ++row;      //  Goes to the next row
         col = 0;
     }
+
     return;
 }
 
