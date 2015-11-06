@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <cstdio>
 #include <cstring>
 #include <vector>
 #include <sstream>
@@ -217,7 +218,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
             success = true;
             if((pid = fork()) < 0)   //  Forks a child process
             {
-                printf("*** ERROR: forking child process failed\n");
+                perror("Forking child process faield");
                 exit(1);
             }
             else if(pid == 0)
@@ -225,7 +226,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
                 //  Execute the command
                 if(execvp(*argv[i], argv[i]) < 0)
                 {
-                    printf("*** Error: exec failed\n");
+                    perror(*argv[i]);
                     success = false;
                     exit(1);
                 }
@@ -238,8 +239,10 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
             {
                 while(wait(&status) != pid) //  Wait for completion
                 {
-                    ;
-                    cout << "Parent" << endl;
+                    if(wait(&status) == -1)
+                    {
+                        perror("Wait error");
+                    }
                 }
             }
             if(conAnd || conOr)
