@@ -1,13 +1,14 @@
 /** 
- * Name: Rebecca Hom
+ * Name: Rebecca Hom, Jorge Gonzalez
  * This is the main file that will be used to run the rshell.
- * Tests the system calls
- *
 * */
 #include "rshell.h"
 
 #include <iostream>
 #include <string>
+#include <unistd.h>
+#include <stdio.h>
+#include <cstring>
 
 using namespace std;
 
@@ -20,11 +21,20 @@ int main()
     char line[100][256];
     char *argv[64][64];
 
+    //  Get username and machine name
+    char* user = getlogin();
+    char host[20];
+    if(gethostname(host, 20))
+    {
+        perror("hostname too long");
+    }
+    //  Shortens machine name 
+    char* mech = strtok(host, ".");
 
     //  Gets the command(s) from user input until exit
     while((input != "exit") && (!bye))
     {
-        cout << "$ ";
+        cout << "[" << user << "@" << mech << "] " << "$ ";
         getline(cin, input);
         rshell.parseCommand(input, line, argv);
         rshell.executeCommand(line, argv, bye);
