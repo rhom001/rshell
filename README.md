@@ -1,5 +1,4 @@
-Rebecca Hom
-Jorge Gonzalez
+Rebecca Hom & Jorge Gonzalez
 #README
 <h1>CS100 - Homework 1: rshell - Writing a Basic Command Shell</h1>
 <p>In this project, we built a basic command shell using C++ source code. It takes in a string of commands and connectors from the user that will be executed in the shell.</p> 
