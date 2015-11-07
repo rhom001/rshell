@@ -39,5 +39,9 @@ int main()
         rshell.parseCommand(input, line, argv);
         rshell.executeCommand(line, argv, bye);
     } 
+    
+    //  Clears the arrays
+    rshell.clearArray(line);
+    rshell.clearArrayP(argv);
     return 0;
 }
