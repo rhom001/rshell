@@ -34,7 +34,7 @@ int main()
     //  Gets the command(s) from user input until exit
     while((input != "exit") && (!bye))
     {
-        cout << "[" << user << "@" << mech << "] " << "$ ";
+        cout << user << "@" << mech << "$ ";
         getline(cin, input);
         rshell.parseCommand(input, line, argv);
         rshell.executeCommand(line, argv, bye);
