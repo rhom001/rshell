@@ -18,5 +18,15 @@ Jorge Gonzalez
 
 <h2>Known Bugs</h2>
 <ul>
-
+    <li>When <em>exit</em> is input in a multiple command, there were problems with the following commands:</li>
+    <ul>
+        <li><em>cd</em></li>
+        <li><em>who</em></li>
+    </ul>
+    <li>For the above commands, extra <em>exit</em> commands.</li>
+    <li>For improper <em>exit</em> exit commands, a <em>ls</em> might be run.</li>
+    <li>The command <em>cd</em> does not run in the shell.</li>
+    <li>When <em>script</em> is run in rshell, it brings the user to the bash.</li>
+    <li>When <em>echo</em> with an argument in quotes, it does not take out the quotes.</li>
+    <li>The '\"' is in <em>echo</em> is also not accepted.</li>
 </ul>
