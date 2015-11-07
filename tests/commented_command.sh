@@ -1,36 +1,28 @@
-#!/bin/sh
-# commented_command.sh
-# tests bin/rshell with commented commands
+Script started on Fri 06 Nov 2015 08:59:27 PM PST
+]0;rhom001@hammer:~/rshell[?1034h[rhom001@hammer rshell]$ make
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic -o bin/rshell src/main.cpp src/rshell.cpp
+]0;rhom001@hammer:~/rshell[rhom001@hammer rshell]$ bin/rshell
+rhom001@hammer$ echo "he  Hello world"; ls    
+"Hello world"
+rhom001@hammer$ ls -a  #-a
+ls: cannot access : No such file or directory
+rhom001@hammer$ ls#-a
+bin  LICENSE  Makefile	README.md  rhom001  src  tests
+rhom001@hammer$ ls -a; eho  cho hello && mkdir         #mkdir test || echo world; git status
+.  ..  bin  .git  LICENSE  Makefile  README.md	rhom001  src  tests
+hello
+rhom001@hammer$ E #echo "Failed comment       at commenting"
+rhom001@hammer$ echo Goodbt ye #&& ei xit
+Goodbye 
+rhom001@hammer$ exit
+logout
+]0;rhom001@hammer:~/rshell[rhom001@hammer rshell]$ bin/rshell
+rhom001@hammer$ ex cho | #hell  o || echo goodbye
 
-# Makes the rshell executable
-make
-echo "Commented Commands Test"
-
-# Test 1: commented command at the end of single command
-echo -e "Test 1: Commented Command - Single Command/Comment at End"
-bin/rshell << 'EOF'
-echo "Hello world"
-ls #-a
+rhom001@hammer$ exit
+logout
+]0;rhom001@hammer:~/rshell[rhom001@hammer rshell]$ eix[K[Kxit
 exit
-EOF
-echo -e "\n"
 
-# Test 2: commented command at end of multiple command
-echo -e "Test 2: Commented Command - Multiple Command/Comment at End"
-bin/rshell << 'EOF'
-echo "Hello world"; ls #-a
-exit
-EOF
-echo -e "\n"
-
-# Test 3: commented command in multple command
-echo -e "Test 3: Commented Command - Multiple Command/Comment"
-bin/rshell << 'EOF'
-#echo "Failed comment" && echo "Nope, still wrong"
-echo "Hello world"; #ls -a || cd
-ls -a; echo hello && mkdir test || echo world;# git status
-exit
-EOF
-
-# Cleans up the tests
-make clean
+Script done on Fri 06 Nov 2015 09:02:25 PM PST
