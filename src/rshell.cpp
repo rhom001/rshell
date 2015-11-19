@@ -11,6 +11,7 @@
 #include <cstring>
 #include <vector>
 #include <sstream>
+#include <stack>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
                 break;
             }
             if((input.at(i) == ' ') || (input.at(i) == '\t') || 
-                (input.at(i) == '\n'))  //  Replaces whitespace with ' ' if dne
+                (input.at(i) == '\n'))  //  Replaces whitespace with ' ' if DNE
             {
                 if((col > 0) && 
                     !((input.at(i + 1) == '&') || 
@@ -53,6 +54,14 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
                         ++col;
                     }
                 }
+            }
+            else if((input.at(i) == '(') || 
+                (input.at(i) == ')'))   //  Gets precedence '(' or ')'
+            {
+                row++;
+                col = 0;
+                line[row][col] = input.at(i);
+                row++;
             }
             else if(input.at(i) == ';')     //  Treat ';' as a newline
             {
@@ -201,6 +210,7 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
     bool conAnd = false;    //  '&&'
     bool conOr = false;     //  '||'
     bool success = true;    //  If previous command was successful
+    stack <char> prec;      //  Checks for precedence
  
     for(unsigned i = 0; argv[i][0] != '\0'; ++i)
     {
@@ -215,8 +225,26 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
                 exit(0);
             }
         }
+        //  Check for precedence
+        else if(line[i][0] == '(')  //  Gets first parenthesis
+        {
+            prec.push(line[i][0]);
+            continue;
+        }
+        else if(line[i][0] == ')')  //  Gets the second parenthesis
+        {
+            if(!prec.empty())
+            {
+                prec.pop();
+            }
+            else
+            {
+                cout << "Syntax error! Extra ')'" << endl;
+            }
+            continue;
+        }
         //  Check for connectors
-        if(line[i][0] == '&')        //  Found an AND connector
+        else if(line[i][0] == '&')        //  Found an AND connector
         {
             conAnd = true;
         }
@@ -228,22 +256,22 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
         {
             conAnd = false;
             conOr = false;
+            continue;
         }
         else    //  Tries to execute the command
         {
-            //  success = true;
             if((pid = fork()) < 0)   //  Forks a child process
             {
-                perror("Forking child process faield");
+                perror("Forking child process failed");
                 exit(1);
             }
             else if(pid == 0)
             {
                 //  Execute the command
-                if(execvp(*argv[i], argv[i]) < 0)
+                if(execvp(*argv[i], argv[i])< 0)
                 {
-                    perror(*argv[i]);
                     success = false;
+                    perror(*argv[i]);
                 }
             } 
             else    //  For the parent:
