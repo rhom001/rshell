@@ -18,8 +18,8 @@ int main()
     // Initial variables for taking in commands
     string input = "";
     bool bye = false;
-    char line[100][256];
-    char *argv[64][64];
+    //  char line[100][256];
+    //  char *argv[64][64];
 
     //  Get username and machine name
     char* user = getlogin();
@@ -36,12 +36,12 @@ int main()
     {
         cout << user << "@" << mech << "$ ";
         getline(cin, input);
-        rshell.parseCommand(input, line, argv);
-        rshell.executeCommand(line, argv, bye);
+        //  rshell.parseCommand(input, line, argv);
+        //  rshell.executeCommand(line, argv, bye);
     } 
     
     //  Clears the arrays
-    rshell.clearArray(line);
-    rshell.clearArrayP(argv);
+    //  rshell.clearArray(line);
+    //  rshell.clearArrayP(argv);
     return 0;
 }
