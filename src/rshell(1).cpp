@@ -213,10 +213,9 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
     bool conOr = false;     //  '||'
     bool success = true;    //  If previous command was successful
     stack <char> prec;      //  Checks for precedence
-	bool checkedTest = false;
+ 
     for(unsigned i = 0; argv[i][0] != '\0'; ++i)
     {
-	checkedTest = false;
         //  Check for exit
         if((line[i][0] == 'e') && (line[i][1] == 'x') && (line[i][2] == 'i') &&
             (line[i][3] == 't'))
@@ -250,12 +249,10 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
         else if(line[i][0] == '&')        //  Found an AND connector
         {
             conAnd = true;
-	    continue;
         }
         else if(line[i][0] == '|')    //  Found an OR connector
         {
             conOr = true;
-	    continue;
         }
         else if((conAnd && !success) || (conOr && success)) //  No connect
         {
@@ -263,12 +260,19 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
             conOr = false;
             continue;
         }
-        else if(!checkedTest)
+        else    //  Tries to execute the command
         {
-		if(argv[i][0] == NULL)
+            if((pid = fork()) < 0)   //  Forks a child process
+            {
+                perror("Forking child process failed");
+                exit(1);
+            }
+            else if(pid == 0)
+            {
+                //  Execute the command
+                if(argv[i][0] == NULL)
 		{
 		   cout << "Error, empty array" << endl;
-		   continue;
 		}
                 string x = argv[i][0];
 		string com = "";
@@ -291,30 +295,24 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 		if(x == "[" && end != "]")
 		{
 		    cout << "Error, no terminating brace" << endl;
-		   continue;
-
 		}
 		else if((x == "test" || (x == "[" && end == "]")))
 		{
 		    if(argv[i][1] != NULL)
 		    {
                         com = argv[i][1];
-			//cout << "com: " << com << endl;
+			cout << "com: " << com << endl;
 		    }
 		    //cout << "now we should check the array for a test" << endl;
 		    if(argv[i][1] == NULL || com == "]")
 		    {
 		        cout << "Nothing to test" << endl;
-		   continue;
-
 		    }
 		    else if (com == "-e")
 		    {
 			if(argv[i][2] == NULL)
 			{
 			    cout << "Nothing to test" << endl;
-		   continue;
-
 			}
 		        else
 			{   
@@ -322,20 +320,14 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			    if(third == "]")
 			    {
 				cout << "Nothing to test" << endl;
-		   continue;
-
 			    }
 			    else if(stat(argv[i][2],&mystat) == -1)
 			    {
 				perror("stat");
-		   continue;
-
 			    }
 			    else
 			    {
 			        cout << "Path exists" << endl;
-		   continue;
-
 			    }
 			}
 		    }
@@ -344,8 +336,6 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			if(argv[i][2] == NULL)
 			{
 			    cout << "Nothing to test" << endl;
-		   continue;
-
 			}
 		        else
 			{
@@ -353,26 +343,18 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			    if(third == "]")
 			    {
 				cout << "Nothing to test" << endl;
-		   continue;
-
 			    }
 			    else if(stat(argv[i][2],&mystat) == -1)
 			    {
 				perror("stat");
-		   continue;
-
 			    }
 			    else if(S_ISREG(mystat.st_mode))
 			    {
 				cout << "Path exists and is a file" << endl;
-		   continue;
-
 			    }
 			    else
 			    {
 				cout << "Path exists but is not a file" << endl;
-		   continue;
-
 			    }
 			    //cout << "lol" << endl;
 			}
@@ -382,8 +364,6 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			if(argv[i][2] == NULL)
 			{
 			    cout << "Nothing to test" << endl;
-		   continue;
-
 			}
 		        else
 			{
@@ -391,26 +371,18 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			    if(third == "]")
 			    {
 				cout << "Nothing to test" << endl;
-		   continue;
-
 			    }
 			    else if(stat(argv[i][2],&mystat) == -1)
 			    {
 				perror("stat");
-		   continue;
-
 			    }
 			    else if(S_ISDIR(mystat.st_mode))
 			    {
 				cout << "Path exists and is a directory" << endl;
-		   continue;
-
 			    }
 			    else
 			    {
 				cout << "Path exists and is not a directory" << endl;
-		   continue;
-
 			    }
 			    //cout << "lol" << endl;
 			}
@@ -420,31 +392,15 @@ void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
 			if(stat(argv[i][1],&mystat) == -1)
 			{
 			    perror("stat");
-		   continue;
-
 			}
 			else
 			{
                             cout << "Path exists" << endl;
-		   continue;
-
 		        }
 		    }
 
 		}
-		}
-        if (!checkedTest)    //  Tries to execute the command
-        {
-            if((pid = fork()) < 0)   //  Forks a child process
-            {
-                perror("Forking child process failed");
-                exit(1);
-            }
-            else if(pid == 0)
-            {
-                //  Execute the command
-                
-        	if(execvp(*argv[i], argv[i]) < 0)
+                /*else*/ if(execvp(*argv[i], argv[i]) < 0)
 		{
                     success = false;
                     perror(*argv[i]);
