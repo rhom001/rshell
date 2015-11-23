@@ -376,20 +376,20 @@ bool Rshell::executeTest(bool bracket, unsigned col, char* com[64])
         }
         else if(flag == "-e")
         {
-            cout << "Path exists for " << com[2] << endl;
+            //  cout << "Path exists for " << com[2] << endl;
             return true;
         }
         else if((flag == "-d") && (S_ISDIR(myStat.st_mode)))
         {
-            cout << com[2] << " is a directory." << endl;
+            //  cout << com[2] << " is a directory." << endl;
             return true;
         }
         else if((flag == "-f") && (S_ISREG(myStat.st_mode)))
         {
-            cout << com[2] << " is a file." << endl;
+            // cout << com[2] << " is a file." << endl;
             return true;
         }
-        cout << flag << " is not a proper flag for " << com[2] << endl;
+        //  cout << flag << " is not a proper flag for " << com[2] << endl;
         return false;
     }
     else if((bracket && (col == 3)) || (!bracket && (col == 2)))
@@ -401,7 +401,7 @@ bool Rshell::executeTest(bool bracket, unsigned col, char* com[64])
             perror("stat");
             return false;
         }
-        cout << "Path exists for " << com[1] << endl;
+        //  cout << "Path exists for " << com[1] << endl;
         return true;
     }
     return false;
