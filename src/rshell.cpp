@@ -10,6 +10,9 @@
 #include <cstring>
 #include <stack>
 #include <queue>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -134,19 +137,7 @@ void Rshell::parseCommand(string& input, char line[][256])
                         ++col;
                     }
                 }
-            }/*
-            else if((input.at(i) == '(') || 
-                (input.at(i) == ')'))   //  Gets precedence '(' or ')'
-            {
-                row++;
-                col = 0;
-                line[row][col] = input.at(i);
-                col++;
-                row++;
-                col = 0;
-                if(input.at(i) == '(') { ++cntPL; }
-                else { ++cntPR; }
-            }*/
+            }
             else if(input.at(i) == ';')     //  Treat ';' as a newline
             {
                 row++;
@@ -274,6 +265,27 @@ bool Rshell::executeCommand(char line[][256], unsigned row, bool bye)
         }
     }
 
+    //  Checks if it is a test command
+    string x = command[0];
+    if(x == "test" || x == "[")
+    {
+        //  Checks if it is brackets or test
+        bool bracket = false;
+        if(x == "[")
+        {
+            bracket = true;
+            //  Returns error for unbalanced brackets
+            string y = command[col - 1];
+            if(y != "]")
+            {
+                cout << "Error: No terminating bracket. " << endl;
+                return false;
+            }
+        }
+        //  Returns result of test
+        return executeTest(bracket, col, command);
+    }
+
     //  Runs the token
     if((pid = fork()) < 0)   //  Forks a child process
     {
@@ -329,4 +341,68 @@ bool Rshell::connect(bool prev, bool con)
         return true;
     }
     return false;       
+}
+
+//  bool executeTest(bool bracket, unsigned col, char* com[64]) - executes the
+//      test command and returns true or false depending on the flag
+bool Rshell::executeTest(bool bracket, unsigned col, char* com[64])
+{
+    //  Checks the number of arguments
+    if((bracket && (col < 3)) || (!bracket < (col < 2)))
+    {
+        cout << "Error: Please provide a file or directory to check." << endl;
+        return false;
+    }
+    else if((bracket && (col > 4)) || (!bracket && (col > 3)))
+    {
+        cout << "Error: too many arguments." << endl;
+        return false;
+    }
+
+    //  Gets a stat struct and identify the flag
+    struct stat myStat;
+    string flag = "";
+    
+    //  Looks at flagged commands
+    if((bracket && (col == 4)) || (!bracket && (col == 3)))
+    {
+        //  Set flag to com[1]
+        flag = com[1];
+        //  Check if path exists
+        if(stat(com[2], &myStat) == -1)
+        {
+            perror("stat");
+            return false;
+        }
+        else if(flag == "-e")
+        {
+            cout << "Path exists for " << com[2] << endl;
+            return true;
+        }
+        else if((flag == "-d") && (S_ISDIR(myStat.st_mode)))
+        {
+            cout << com[2] << " is a directory." << endl;
+            return true;
+        }
+        else if((flag == "-f") && (S_ISREG(myStat.st_mode)))
+        {
+            cout << com[2] << " is a file." << endl;
+            return true;
+        }
+        cout << flag << " is not a proper flag for " << com[2] << endl;
+        return false;
+    }
+    else if((bracket && (col == 3)) || (!bracket && (col == 2)))
+    {
+        //  Don't set a flag ;)
+        //  Check if path exists
+        if(stat(com[1], &myStat) == -1)
+        {
+            perror("stat");
+            return false;
+        }
+        cout << "Path exists for " << com[1] << endl;
+        return true;
+    }
+    return false;
 }

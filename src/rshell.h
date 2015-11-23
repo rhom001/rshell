@@ -24,5 +24,7 @@ class Rshell
         //  Checks for a connector and compares
         bool checkCon(char line[][256], unsigned);
         bool connect(bool, bool);
+        //  Executes the test command
+        bool executeTest(bool, unsigned, char* com[64]);
 };
 #endif  //  RSHELL_H
