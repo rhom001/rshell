@@ -18,7 +18,7 @@ int main()
     // Initial variables for taking in commands
     string input = "";
     bool bye = false;
-    //  char line[100][256];
+    char line[100][256];
     //  char *argv[64][64];
 
     //  Get username and machine name
@@ -34,8 +34,11 @@ int main()
     //  Gets the command(s) from user input until exit
     while((input != "exit") && (!bye))
     {
+        input.erase();
         cout << user << "@" << mech << "$ ";
         getline(cin, input);
+        rshell.run(input, line, bye);
+        rshell.clearArray(line);
         //  rshell.parseCommand(input, line, argv);
         //  rshell.executeCommand(line, argv, bye);
     } 

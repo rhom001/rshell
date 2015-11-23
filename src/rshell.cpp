@@ -3,15 +3,13 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstdio>
 #include <cstring>
-#include <vector>
-#include <sstream>
 #include <stack>
+#include <queue>
 
 using namespace std;
 
@@ -22,107 +20,91 @@ Rshell::Rshell()
 {}
 
 //  Rshell functions
-void Rshell::run(string& input)
+void Rshell::run(string& input, char line[][256],  bool bye)
 {
+    //  Checks if the first character is a connector
+    if((input.at(0) == '&') || (input.at(0) == '|'))
+    {
+        cout << "Syntax error: unexpected token '" << input.at(0) 
+            << input.at(1) << "'" << endl;
+        return;
+    }
     //  Parses input into a 2d char array
-    char line[][256];
     parseCommand(input, line);
-    
-    //  Checks to make sure that parentheses are balanced
-    int cntPL = 0;
-    int cntPR = 0;
-    char c;
-    for(unsigned i = 0; line[i][0] != '\0'; ++i)
-    {
-        c = line[i][0];
-        if(c == '(')
-        {
-            ++cntPL;
-        }
-        else if(c == ')')
-        {
-            ++cntPR;
-        }
-    }
-    //  Returns error if extra parentheses and exits
-    if(cntPL < cntPR)
-    {
-        cout << "Syntax error: extra ');" << endl;
-        return;
-    }
-    else if(cntPL > cntPR)
-    {
-        cout << "Syntax error: extra '('" << endl;
-        return;
-    }
+     
     //  Sets up running of commands
     bool success = true;    //  Returns true if command succeeds
     unsigned pos = 0;       //  Position at where iterator is at
     queue <unsigned> prec;  //  Keeps track of precedence (line array rows)
-    //  bool par = false;   //  Keeps track if parentheses is true
     stack <bool> prev;      //  Keeps track of previous successes
-    bool conAnd = false;    //  AND connector if true
-    bool conOr = false;     //  OR connector if true
     bool conFlag = false;   //  AND if true, OR if false
+    bool hasCon = false;     //  Checks if is a connector
 
-    //  Run commands
-    while(line[pos][0] != '\0')
+    //  Pushes commands into a queue to determine size of list of commands
+    for(pos = 0; line[pos][0] != '\0'; ++pos)
     {
-        //  If '(' then push the pos on to the queue
-        if(line[pos][0] == '(')
-        {
-            prec.push(pos);
-        }
-        //  If ')' then execute commands in the queues until empty
-        else if(line[pos][0] == ')')
-        {
-            //  Execute all commands in the precedence queue
-            queue <bool> inner;
-            while(!prec.empty())
-            {
-                //  Look at top of queue
-                unsigned doThis = prec.front();
-                //  Checks for connector
-                if(checkCon(line, doThis))
-                {
-                    if(line[doThis][0] == '&')
-                    {
-                        conAnd = true;
-                        conOr = false;
-                        conFlag = true;
-                    }
-                    else    // if(line[i][0] == '|')
-                    {
-                        conOr = true;
-                        conAnd = false;
-                        conFlag = false;
-                    }
-                }
-                else    //  Runs commands in queue
-                {
-                    success = executeCommand(line, doThis);
-                    //  If the inner queue is not empty, then run commands in it
-                    while(!inner.empty())
-                    {
-                        //  Checks success of the connector
-                        bool conSuc = connect(inner.front(), conFlag, line, doThis);
-                        if((line[doThis + 1][0] != '\0')
-                        {
-                            if(checkCon(line, doThis + 1))
-                            {
-                                
-                            
-                }
-        }
-        ++pos;
+        prec.push(pos);
     }
-    
-    return;
+
+   //  Run commands
+    while(!prec.empty())
+    {
+        //  Sets the position to the current front of the queue
+        pos = prec.front();
+        //  Checks if the current pos is a connector
+        hasCon = checkCon(line, pos);
+        if(!hasCon)
+        {
+            //  Runs the command
+            //  If the previous connector is true or if the prev stack is empty
+            if((prev.empty()) || (prev.top() == true))
+            {
+                success = executeCommand(line, pos, bye);
+                //  If the prev stack is not empty, then pop the top
+                if(!prev.empty())
+                {
+                    prev.pop();
+                }
+                //  Puts result of success on to the stack
+                prev.push(success);
+            }
+
+        }
+        else    //  if(hasCon)
+        {
+            //  If the prev stack is empty, then return error
+            if(prev.empty())
+            {
+                cout << "Error: extraneous token '" << line[pos] << "'"
+                    << endl;
+                return;
+            }
+            //  Since there is a connector, it is AND or OR
+            if(line[pos][0] == '&')
+            {
+                //  cout << "AND" << endl;
+                conFlag = true;
+            }
+            else    //  if(line[pos][0] == '|')
+            {
+                //  cout << "OR" << endl;
+                conFlag = false;
+            }
+            //  Checks the success of the connector and pushes on to stack
+            success = connect(prev.top(), conFlag);
+            prev.push(success);
+        }
+        //  Pops off the front of the precedence queue
+        prec.pop();
+    }
+        
+    //  Cleans array at end
+    clearArray(line);
 }
 //  These functions takes command input from the user and parses them
 //  parseCommand(string& input, char line[][256], char* argv[][64]) - 
 //      parses out whitespace and puts charaters from string into array of char
-void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
+void Rshell::parseCommand(string& input, char line[][256])
 {
     unsigned row = 0;
     unsigned col = 0;
@@ -152,16 +134,19 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
                         ++col;
                     }
                 }
-            }
+            }/*
             else if((input.at(i) == '(') || 
                 (input.at(i) == ')'))   //  Gets precedence '(' or ')'
             {
-                cout << input.at(i) << endl;
                 row++;
                 col = 0;
                 line[row][col] = input.at(i);
+                col++;
                 row++;
-            }
+                col = 0;
+                if(input.at(i) == '(') { ++cntPL; }
+                else { ++cntPR; }
+            }*/
             else if(input.at(i) == ';')     //  Treat ';' as a newline
             {
                 row++;
@@ -194,65 +179,9 @@ void Rshell::parseCommand(string& input, char line[][256], char* argv[][64])
                 quote = false;
             }
         }
-    } 
-
-    //  Sets up the argv array
-    row = 0;
-    col = 0;
-    quote = false;
-    clearArrayP(argv);
-/*
-    //  Uses strtok to replace any ' ' with \0
-    char* pch;
-    for(unsigned i = 0; line[i][0] != '\0'; ++i)
-    {
-        col = 0;
-        argv[row][col] = &line[i][0];
-        pch = strtok(line[i], " ");
-        while(pch != NULL)      //  Keeps going until '\0' is found
-        {
-            argv[row][col] = pch;
-            ++col; 
-            pch = strtok(NULL, " ");
-        }
-        ++row;
     }
-*/
-/* 
-    //  Output array
-    for(unsigned i = 0; line[i][0] != '\0'; ++i)
-    {
-        cout << line[i] << endl;
-    }
-*/    
-    //  Looks through line and replaces any ' ' with \0'
-    for(unsigned i = 0; line[i][0] != '\0'; ++i)
-    {
-        for(unsigned j = 0; line[i][j] != '\0'; ++j)
-        {
-            if(j == 0)  //  Gets the command
-            {
-                argv[row][col] = &line[i][j];
-                ++col;
-            }
-            if(!quote && (line[i][j] == ' '))   //  Replaces space with '\0'
-            {
-                line[i][j] = '\0';
-                argv[row][col] = &line[i][j + 1];
-                ++col;
-            }
-            if(line[i][j] == '"')   //  Triggers quotes
-            {
-                quote = !quote;
-            }    
-        }
-        ++row;      //  Goes to the next row
-        col = 0;
-    }
-
     return;
 }
-
 //  void parseConnect(string&, unsigned, char [][], char, unsigned&, unsigned&)-
 //      checks if an '&' or '|'  is a connector or not
 void Rshell::parseConnect(string& input, unsigned pos, char line[][256], char con, unsigned& row, unsigned& col)
@@ -277,7 +206,6 @@ void Rshell::parseConnect(string& input, unsigned pos, char line[][256], char co
         line[row][col] = input.at(pos);
         col++;
     }
-    return;
 }
 
 //  void clearArray(char line[100][256]) - puts '\0' for all spots in the array
@@ -293,112 +221,112 @@ void Rshell::clearArray(char line[][256])
     return;
 }
 
-//  void clearArrayP(char* argv[][]) - puts '\0' for all spots in the pointer
-//      array
-void Rshell::clearArrayP(char* argv[][64])
+//  void clearCommand(char* command[64]) - clears the command array
+void Rshell::clearCommand(char* command[64])
 {
-    for(unsigned row = 0; argv[row][0] != '\0'; ++row)
+    for(unsigned i = 0; i < 64; ++i)
     {
-        for(unsigned col = 0; argv[row][col] != '\0'; ++col)
-        {
-            argv[row][col] = '\0';
-        }
+        command[i] = '\0';
     }
-    return;
+    return; 
 }
 
-//  void executeCommand(char* argv[][]) - takes the array of commands and 
-//      executes them
-void Rshell::executeCommand(char line[][256], char* argv[][64], bool bye)
+//  void executeCommand(char line[][256], unsigned row) - takes a command from a row,
+//      tokenizes it and executes it
+bool Rshell::executeCommand(char line[][256], unsigned row, bool bye)
 {
     pid_t pid;
     int status;
-    bool conAnd = false;    //  '&&'
-    bool conOr = false;     //  '||'
-    bool success = true;    //  If previous command was successful
-/*
-   //   Outputs the argv array 
-   for(unsigned i = 0; argv[i][0] != '\0'; ++i)
+
+    //  Check for exit
+    if((line[row][0] == 'e') && (line[row][1] == 'x') && (line[row][2] == 'i')
+        && (line[row][3] == 't'))
     {
-        for(unsigned j = 0; argv[i][j] != '\0'; ++j)
-        {
-            cout << argv[i][j] << " ";
-        }
-        cout << endl;
+        bye = true;
+        cout << "logout" << endl;
+        exit(0);
     }
-*/ 
-    for(unsigned i = 0; argv[i][0] != '\0'; ++i)
+
+    // Declares a char pointer array called command 
+    char* command[64];
+    clearCommand(command);
+
+    //  Tokenizes the command
+    unsigned col = 0;
+    bool quote = false;
+    for(unsigned i = 0; line[row][i] != '\0'; ++i)
     {
-        //  Check for exit
-        if((line[i][0] == 'e') && (line[i][1] == 'x') && (line[i][2] == 'i') &&
-            (line[i][3] == 't'))
+        if(i == 0)  //  Gets the command
         {
-            if(!((conAnd && !success) || (conOr && success)))
-            {
-                bye = true;
-                cout << "logout" << endl;
-                exit(0);
-            }
-        }       
-        //  Check for connectors
-        else if(line[i][0] == '&')        //  Found an AND connector
-        {
-            conAnd = true;
-            cout << "AND" << endl;
-            continue;
+            command[col] = &line[row][i];
+            ++col;
         }
-        else if(line[i][0] == '|')    //  Found an OR connector
+        else if(!quote && (line[row][i] == ' '))
         {
-            conOr = true;
-            cout << "OR" << endl;
-            continue;
+            //  Replaces space with a null terminating character
+            line[row][i] = '\0';
+            command[col] = &line[row][i + 1];
+            ++col;
         }
-        else if((conAnd && !success) || (conOr && success)) //  No connect
+        else if(line[row][i] == '"')
         {
-            conAnd = false;
-            conOr = false;
-            cout << "Connector failed!" << endl;
-            continue;
+            quote = !quote;
         }
-        else    //  Tries to execute the command
+    }
+
+    //  Runs the token
+    if((pid = fork()) < 0)   //  Forks a child process
+    {
+        perror("Forking child process failed");
+        exit(1);
+    }
+    else if(pid == 0)
+    {
+        //  Execute the command
+        if(execvp(*command, command) >= 0)
         {
-            if((pid = fork()) < 0)   //  Forks a child process
+            cout << "Command succeeded!" << endl;
+            return true;
+        }
+        else
+        {
+            perror(*command);
+            return false;
+        }
+    } 
+    else    //  For the parent:
+    {
+        while(wait(&status) != pid) //  Wait for completion
+        {
+            if(wait(&status) == -1)
             {
-                perror("Forking child process failed");
-                exit(1);
-            }
-            else if(pid == 0)
-            {
-                success = false;
-                //  Execute the command
-                if(execvp(*argv[i], argv[i]) >= 0)
-                {
-                   success = true;
-                   cout << "Command succeeded!" << endl;
-                }
-                else
-                {
-                    perror(*argv[i]);
-                }
-            } 
-            else    //  For the parent:
-            {
-                while(wait(&status) != pid) //  Wait for completion
-                {
-                    if(wait(&status) == -1)
-                    {
-                        perror("Wait error");
-                    }
-                }
-            }
-            if(conAnd || conOr)
-            {
-                conAnd = false;
-                conOr = false;
-                cout << "Finished connector" << endl;
+                perror("Wait error");
+                return false;
             }
         }
     }
-    return;
+    return true;
 }
 
+//  bool checkCon(char line[][256], unsigned pos) - checks if the character at pos in
+//      line is either '&' (AND) or '|' (OR), otherwise returns false
+bool Rshell::checkCon(char line[][256], unsigned pos)
+{
+    if((line[pos][0] == '&') || (line[pos][0] == '|'))
+    {
+        return true;
+    }
+    return false;
+}
+
+//  bool connect(bool prev, bool con) - checks if successful AND (the previous command 
+//      succeeded) or if successful OR (the previous command failed), otherwise returns
+//      false
+bool Rshell::connect(bool prev, bool con)
+{
+    if((con && prev) || (!con && !prev))
+    {
+        return true;
+    }
+    return false;       
+}
