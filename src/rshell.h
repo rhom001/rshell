@@ -12,7 +12,8 @@ class Rshell
         //  Class constructor
         Rshell();
         //  Runs commands
-        void run(string& input, char line[][256],  bool);
+        void metaRun(string& input, char line[][256], bool);
+        bool run(string& input, char line[][256], bool);
         //  Parses command inputs
         void parseCommand(string& input, char line[][256]); 
         void parseConnect(string&, unsigned, char line[][256], char, unsigned&, unsigned&);

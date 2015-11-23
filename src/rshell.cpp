@@ -10,6 +10,7 @@
 #include <cstring>
 #include <stack>
 #include <queue>
+#include <vector>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -23,14 +24,112 @@ Rshell::Rshell()
 {}
 
 //  Rshell functions
-void Rshell::run(string& input, char line[][256],  bool bye)
+//  void metaRun(string& input, char line[][256], bool bye) - takes a string 
+//      from main breaks it up into parentheses blocks
+void Rshell::metaRun(string& input, char line[][256], bool bye)
+{
+    //  Count number of parentheses in string
+    unsigned cntPL = 0;
+    unsigned cntPR = 0;
+    for(unsigned i = 0; i < input.size(); ++i)
+    {
+        if(input.at(i) == '(')
+        {
+            ++cntPL;
+        }
+        else if(input.at(i) == ')')
+        {
+            ++cntPR;
+        }
+    }
+
+    //  Error check for parentheses
+    bool success = false;
+    if(cntPL < cntPR)
+    {
+        cout << "Syntax error: extra ')'" << endl;
+        return;
+    }
+    else if(cntPL > cntPR)
+    {
+        cout << "Syntax error: extra '('" << endl;
+        return;
+    }
+    else if(cntPL == 0)
+    {
+        //  Run entire string
+        //  cout << "Only one string to check!" << endl;
+        success = run(input, line, bye);
+        cout << success << endl;
+        return;
+    }
+    
+    //  Breaks up input string into several strings
+    string copy = input;        //  Cut up copy of input
+    vector <string> metaBot;    //  Store frags into vector
+    stack <unsigned> leftPar;   //  Stores positions of left parenthesis
+    //  unsigned prec[20];          //  Holds actual positions of left parentheses
+    unsigned pos = 0;           //  Position of string iterator
+    unsigned size = copy.size();
+
+    //  Get first left parenthesis
+    unsigned disc = copy.find("(");
+    leftPar.push(disc);
+    size = disc - pos;
+    string temp = copy.substr(pos, size);
+    pos = disc + 1;
+    //  Get the string of everything up to the first parenthesis
+    if(temp.size() > 0)
+    {
+        //  Find if there is a connector at end of temp
+        string con;
+        int opAnd = -1;
+        int opOr = -1;
+        bool connector = false;     //  False if OR, true if AND
+        //  Finds the AND operator
+        if(temp.rfind("&&") != string::npos)
+        {
+            opAnd = temp.rfind("&&");
+        }
+        //  Find the OR operator
+        if(temp.rfind("||") != string::npos)
+        {
+            opOr = temp.rfind("||");
+        }
+        //  Gets the connector
+        if(opAnd < opOr)
+        {
+            connector = false;
+            con = temp.substr(opOr, 2);
+            temp = temp.substr(0, opOr);
+        }
+        else if(opAnd > opOr)
+        {
+            connector = true;
+            con = temp.substr(opAnd, 2);
+            temp = temp.substr(0, opAnd);
+        }
+        //  Pushes the temp and connector on to the metaBot vector
+        metaBot.push_back(temp);
+        metaBot.push_back(con);
+        cout << temp << ": " << connector << endl;
+    }
+    //  else    //  Find get the position of the next parenthesis
+
+    
+    
+    return;
+}
+//  void run(string& input, char line[][256], bool bye) - runs a string input
+//      and outputs the success of the last command
+bool Rshell::run(string& input, char line[][256], bool bye)
 {
     //  Checks if the first character is a connector
     if((input.at(0) == '&') || (input.at(0) == '|'))
     {
         cout << "Syntax error: unexpected token '" << input.at(0) 
             << input.at(1) << "'" << endl;
-        return;
+        return false;
     }
     //  Parses input into a 2d char array
     parseCommand(input, line);
@@ -98,11 +197,17 @@ void Rshell::run(string& input, char line[][256],  bool bye)
         else    //  if(hasCon)
         {
             //  If the prev stack is empty, then return error
+            unsigned back;
+            if(pos > 0)
+            {
+                back = pos - 1;
+            }
+            hasCon = checkCon(line, back);
             if(prev.empty())
             {
                 cout << "Error: extraneous token '" << line[pos] << "'"
                     << endl;
-                return;
+                return false;
             }
             //  Since there is a connector, it is AND or OR
             if(line[pos][0] == '&')
@@ -125,6 +230,7 @@ void Rshell::run(string& input, char line[][256],  bool bye)
         
     //  Cleans array at end
     clearArray(line);
+    return success;
 }
 //  These functions takes command input from the user and parses them
 //  parseCommand(string& input, char line[][256], char* argv[][64]) - 
@@ -219,6 +325,7 @@ void Rshell::parseConnect(string& input, unsigned pos, char line[][256], char co
         line[row][col] = input.at(pos);
         col++;
     }
+    return;
 }
 
 //  void clearArray(char line[100][256]) - puts '\0' for all spots in the array
@@ -370,7 +477,7 @@ bool Rshell::connect(bool prev, bool con)
 bool Rshell::executeTest(bool bracket, unsigned col, char* com[64])
 {
     //  Checks the number of arguments
-    if((bracket && (col < 3)) || (!bracket < (col < 2)))
+    if((bracket && (col < 3)) || (!bracket && (col < 2)))
     {
         cout << "Error: Please provide a file or directory to check." << endl;
         return false;

@@ -37,7 +37,7 @@ int main()
         input.erase();
         cout << user << "@" << mech << "$ ";
         getline(cin, input);
-        rshell.run(input, line, bye);
+        rshell.metaRun(input, line, bye);
         rshell.clearArray(line);
         //  rshell.parseCommand(input, line, argv);
         //  rshell.executeCommand(line, argv, bye);
