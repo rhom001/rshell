@@ -28,6 +28,7 @@ Rshell::Rshell()
 //      from main breaks it up into parentheses blocks
 void Rshell::metaRun(string& input, char line[][256], bool bye)
 {
+    vector <bool> plan;
     //  Count number of parentheses in string
     unsigned cntPL = 0;
     unsigned cntPR = 0;
@@ -55,12 +56,21 @@ void Rshell::metaRun(string& input, char line[][256], bool bye)
         cout << "Syntax error: extra '('" << endl;
         return;
     }
+    else if(input.find(")") < input.find("("))
+    {
+        cout << "Error: Reversed parentheses. You're a ****ing **** for doing "
+            << "that you terrible " << endl 
+            << "monster. If you're a Pisces, you're not special for trying "
+            << "to code that in." << endl;
+        return;
+    }
     else if(cntPL == 0)
     {
         //  Run entire string
         //  cout << "Only one string to check!" << endl;
         success = run(input, line, bye);
-        cout << success << endl;
+        plan.push_back(success);
+        //  cout << success << endl;
         return;
     }
     
@@ -68,7 +78,7 @@ void Rshell::metaRun(string& input, char line[][256], bool bye)
     string copy = input;        //  Cut up copy of input
     vector <string> metaBot;    //  Store frags into vector
     stack <unsigned> leftPar;   //  Stores positions of left parenthesis
-    //  unsigned prec[20];          //  Holds actual positions of left parentheses
+    vector <unsigned> prec;     //  Holds actual positions of left parentheses
     unsigned pos = 0;           //  Position of string iterator
     unsigned size = copy.size();
 
@@ -112,12 +122,19 @@ void Rshell::metaRun(string& input, char line[][256], bool bye)
         //  Pushes the temp and connector on to the metaBot vector
         metaBot.push_back(temp);
         metaBot.push_back(con);
-        cout << temp << ": " << connector << endl;
+        //  cout << temp << ": " << connector << endl;
     }
-    //  else    //  Find get the position of the next parenthesis
-
-    
-    
+    else    //  Find get the position of the next parenthesis
+    {
+        //  Get the positions of all of the left parentheses
+        for(unsigned i = 0; i < copy.size(); ++i)
+        {
+            if(copy.at(i) == '(')
+            {
+                prec.push_back(i);
+            }
+        }
+    }
     return;
 }
 //  void run(string& input, char line[][256], bool bye) - runs a string input
