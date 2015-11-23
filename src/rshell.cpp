@@ -59,19 +59,41 @@ void Rshell::run(string& input, char line[][256],  bool bye)
         if(!hasCon)
         {
             //  Runs the command
-            //  If the previous connector is true or if the prev stack is empty
-            if((prev.empty()) || (prev.top() == true))
+            //  When we run a regular command, we can check the perv stack
+            //  If the prev is empty, then we run the command and push it on to
+            //      prev
+            //  If the stack is not empty, and the previous line is a connector
+            //      then we look at the stack and if it is true, 
+            //          then we run the command, pop the top of prev off, and 
+            //          push success on to prev
+            //      If it is false, then we just pop the top of prev off
+            
+            if(!prev.empty())
+            {
+                //  We look at the top of the stack
+                success = prev.top();
+                //  We pop off the top of the stack
+                prev.pop();
+                //  Check if the previous line was a connector
+                unsigned back;
+                if(pos > 0)
+                {
+                    back = pos - 1;
+                    hasCon = checkCon(line, back);
+                }
+                //  If the top is true, then we run the current command
+                //      if the previous line was a connector
+                if(success && hasCon)
+                {
+                    success = executeCommand(line, pos, bye);
+                    prev.push(success);
+                }
+            }
+            else    //  prev stack is empty
             {
                 success = executeCommand(line, pos, bye);
-                //  If the prev stack is not empty, then pop the top
-                if(!prev.empty())
-                {
-                    prev.pop();
-                }
-                //  Puts result of success on to the stack
                 prev.push(success);
             }
-
         }
         else    //  if(hasCon)
         {
