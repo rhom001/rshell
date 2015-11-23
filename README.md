@@ -27,13 +27,15 @@ Particularly for the test command, after determining that it was the command we 
 </p>
 
 <h2>Known Bugs</h2>
-<ul>
-    <li>Assignment 2 Bugs</li>
+<p>
+Some known bugs. Unless noted as fixed, expect the bugs to still be there.
+</p>
+<h3>Assignment 2 Bugs</h3>
 <ul>
     <li>Due to time constraints, we were unable to properly implement the parentheses precedence operators.</li>
-    <li>For commands run through execvp() in executeCommand, executeCommand will return false for explicity wrong commands, but not flags.</li>
+    <li>For commands run through <em> execvp()</em> in executeCommand, executeCommand will return false for explicity wrong commands, but not flags.</li>
 </ul>
-    <li>Assignment 1 Bugs</li>
+<h3>Assignment 1 Bugs</h3>
 <ul>
     <li>When <em>exit</em> is input in a multiple command, there were problems with the following commands in multiple commands:</li>
     <ul>
@@ -48,5 +50,4 @@ Particularly for the test command, after determining that it was the command we 
     <li>When <em>script</em> is run in rshell, it brings the user to the bash.</li>
     <li>When <em>echo</em> with an argument in quotes, it does not take out the quotes.</li>
     <li>The '\"' is in <em>echo</em> is also not accepted.</li>
-</ul>
 </ul>
