@@ -14,6 +14,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <fstream>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -411,8 +413,9 @@ bool Rshell::executeCommand(char line[][256], unsigned row, bool bye)
         }
     }
 
-    //  Checks if it is a test command
+    //  Checks if it is a special command
     string x = command[0];
+    //  Checks if it is the test command
     if(x == "test" || x == "[")
     {
         //  Checks if it is brackets or test
@@ -432,7 +435,28 @@ bool Rshell::executeCommand(char line[][256], unsigned row, bool bye)
         return executeTest(bracket, col, command);
     }
 
-    //  Runs the token
+    //  Checks if it is the cp command
+    if(x == "cp")
+    {
+        if(col == 3)
+        {
+            return executeCp(command);
+        }
+        else
+        {
+            if(col < 3)
+            {
+                cout << "Error: need a source and destination file." << endl;
+            }
+            else    //  if(col > 3)
+            {
+                cout << "Error: too many arguments." << endl;
+            }
+            return false;
+        }
+    }
+
+    //  Otherwise runs the token
     if((pid = fork()) < 0)   //  Forks a child process
     {
         perror("Forking child process failed");
@@ -443,7 +467,7 @@ bool Rshell::executeCommand(char line[][256], unsigned row, bool bye)
         //  Execute the command
         if(execvp(*command, command) >= 0)
         {
-            cout << "Command succeeded!" << endl;
+            //  cout << "Command succeeded!" << endl;
             return true;
         }
         else
@@ -551,4 +575,65 @@ bool Rshell::executeTest(bool bracket, unsigned col, char* com[64])
         return true;
     }
     return false;
+}
+
+bool Rshell::executeCp(char* com[64])
+{
+    //  Creates a struct to check for structures
+    struct stat myStat;
+    //  Checks if src exists
+    if(stat(com[1], &myStat) == -1)
+    {
+        cout << "Error: " << com[1] << " does not exist." << endl;
+        return false;
+    }
+    //  Checks if dest does not exist
+    else if(stat(com[2], &myStat) != -1)
+    {
+        cout << "Error: " << com[2] << " already exists." << endl;
+        return false;
+    }
+    //  Checks if src is a directory
+    else if(S_ISDIR(myStat.st_mode))
+    {
+        cout << "Error: " << com[1] << " is a directory and cannot be copied."
+            << endl;
+        return false;
+    }
+    
+    //  Create file descriptors
+    int input_fd, output_fd;
+    //  Number of bytes returned by read() write()
+    ssize_t ret_in;
+    ssize_t ret_out;
+    //  Char buffer
+    char buffer[BUFSIZ];
+    
+    //  Create input file descriptor
+    input_fd = open(com[1], O_RDONLY);
+    if(input_fd == -1)
+    {
+        perror("open read");
+    }
+    
+    //  Create output file descriptor
+    output_fd = open(com[2], O_WRONLY | O_CREAT, 0644);
+    if(output_fd == -1)
+    {
+        perror("open write");
+    }
+
+    //  Copy Process
+    while((ret_in = read(input_fd, &buffer, BUFSIZ)) > 0)
+    {
+        ret_out = write(output_fd, &buffer, ret_in);
+        if(ret_out != ret_in)
+        {
+            perror("write");
+        }
+    }
+    //  Close
+    close(input_fd);
+    close(output_fd);
+    return true;
 }
